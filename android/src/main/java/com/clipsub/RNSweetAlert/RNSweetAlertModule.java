@@ -23,13 +23,11 @@ public class RNSweetAlertModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void showSweetAlert(ReadableMap options, final Callback acceptCallback, final Callback cancelCallback) {
+  public void showAlertWithOptions(ReadableMap options, final Callback callback) {
     sweetAlertDialog = new SweetAlertDialog(getCurrentActivity());
-    String type = options.getString("type");
-    String title = options.getString("title");
-    String contentText = options.getString("contentText");
-    boolean cancellable = options.getBoolean("cancellable");
-    switch (type) {
+    String style = options.getString("style");
+
+    switch (style) {
       case "normal":
         sweetAlertDialog.changeAlertType(SweetAlertDialog.NORMAL_TYPE);
         break;
@@ -50,23 +48,29 @@ public class RNSweetAlertModule extends ReactContextBaseJavaModule {
         break;
     }
 
+    if (options.hasKey("setCanceledOnTouchOutside"))
+      sweetAlertDialog.setCanceledOnTouchOutside((options.getBoolean("setCanceledOnTouchOutside")));
+
     sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
       @Override
       public void onClick(SweetAlertDialog sweetAlertDialog) {
-        acceptCallback.invoke("accepted");
+        callback.invoke("Detter er callback!");
         sweetAlertDialog.dismissWithAnimation();
       }
     });
-    sweetAlertDialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
-      @Override
-      public void onClick(SweetAlertDialog sweetAlertDialog) {
-        cancelCallback.invoke("cancelled");
-        sweetAlertDialog.dismissWithAnimation();
-      }
-    });
-    sweetAlertDialog.setTitleText(title);
-    sweetAlertDialog.setContentText(contentText);
-    sweetAlertDialog.setCancelable(cancellable);
+
+    if (options.hasKey("title"))
+      sweetAlertDialog.setTitleText(options.getString("title"));
+    if (options.hasKey("subTitle"))
+      sweetAlertDialog.setContentText(options.getString("subTitle"));
+    if (options.hasKey("confirmButtonTitle"))
+      sweetAlertDialog.setConfirmText(options.getString("confirmButtonTitle"));
+    if (options.hasKey("otherButtonTitle"))
+      sweetAlertDialog.setCancelText(options.getString("otherButtonTitle"));
+    if (options.hasKey("cancellable"))
+      sweetAlertDialog.setCancelable(options.getBoolean("cancellable"));
+    if (options.hasKey("cancelOnTouchOutside"))
+      sweetAlertDialog.setCanceledOnTouchOutside(options.getBoolean("cancelOnTouchOutside"));
     sweetAlertDialog.show();
   }
 
